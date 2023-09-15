@@ -20,7 +20,7 @@ VALUES  ("Sales Representative", 54000, 1),
         ("Lead Developer", 180000, 4),
         -- HR Team
         ("Human Resources Manager", 110000, 5),
-        ("Human Resources Representative", 60000, 5)
+        ("Human Resources Representative", 60000, 5);
 
 
 INSERT INTO employee (first_name, last_name, role_id, mananger_id)
@@ -35,10 +35,13 @@ VALUES ("Jay", "Garrick", 2, Null),
        ("Richard", "Grayson", 5, 6),
        ("Harvey", "Dent",6, Null),
        -- Engineering Team
-       ("Jonathan", "Osterman",4, 4),
-       ("Ray", "Palmer",4, 4),
-       ("Victor", "Stone",4, 4),
-       ("Martin", "Stein",4, 4),
-       ("Tim", "Drake",4, 4),
-       ("Lucius", "Fox",4, 4),
-       -- HR Team   
+       ("Jonathan", "Osterman", 7, 9),
+       ("Ray", "Palmer", 7, 9),
+       ("Victor", "Stone", 7, 9),
+       ("Martin", "Stein", 8, 9),
+       ("Tim", "Drake", 8, 9),
+       ("Lucius", "Fox", 9, Null),
+       -- HR Team  
+       ("Clark", "Kent", 10, Null),
+       ("Diana", "Prince", 11, 10),
+       ("Hal", "Jordan", 11, 10);
