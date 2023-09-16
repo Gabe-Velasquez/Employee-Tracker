@@ -90,21 +90,60 @@ async function startQuestion() {
 // Add Options
 function addEmployee() {}
 
-function addRole() {}
+function addRole() {
+  const sqlDept = `SELECT * FROM department`;
+  db.query(sqlDept, (err, res) => {
+    //map method to go through all roles
+    departmentList = res.map((departments) => ({
+      name: departments.name,
+      value: departments.id,
+    }));
+    return inquirer
+      .prompt([
+        {
+          type: 'input',
+          name: 'newRole',
+          message: 'What is the title of the new role?',
+        },
+        {
+          type: 'input',
+          name: 'salary',
+          message: 'What is the salary of this role?',
+        },
+        {
+          type: 'list',
+          name: department,
+          message: 'Which department does this role belong to?',
+          choices: departmentList,
+        },
+      ])
+      .then((answer) => {
+        const sqlRole = `INSERT INTO role SET title = ${answer.newRole}, department_id=${answer.department}, salary = ${answer.salary};`;
+        db.query(sqlRole, (err, res) => {
+          console.log(`Added ${answer.newRole} to the database`);
+          startQuestion();
+        });
+      });
+  });
+}
 
 function addDepartment() {
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'department',
-            message: 'What is the name of your department?'
-        }
-    ]).then((answer)=>{
-        const sqlDept = `INSERT INTO department(name) VALUES('${answer.department}');`
-        db.query(sqlDept, (err,res)=>{
-            console.log(`Successfuly added ${answer.department} to our list of departments!`)
-            startQuestion();
-        });
+  inquirer
+    .prompt([
+      {
+        type: 'input',
+        name: 'department',
+        message: 'What is the name of your department?',
+      },
+    ])
+    .then((answer) => {
+      const sqlDept = `INSERT INTO department(name) VALUES('${answer.department}');`;
+      db.query(sqlDept, (err, res) => {
+        console.log(
+          `Successfuly added ${answer.department} to our list of departments!`
+        );
+        startQuestion();
+      });
     });
 }
 
