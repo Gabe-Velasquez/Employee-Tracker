@@ -92,7 +92,21 @@ function addEmployee() {}
 
 function addRole() {}
 
-function addDepartment() {}
+function addDepartment() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'department',
+            message: 'What is the name of your department?'
+        }
+    ]).then((answer)=>{
+        const sqlDept = `INSERT INTO department(name) VALUES('${answer.department}');`
+        db.query(sqlDept, (err,res)=>{
+            console.log(`Successfuly added ${answer.department} to our list of departments!`)
+            startQuestion();
+        });
+    });
+}
 
 // Update Option
 function updateEmployee() {
