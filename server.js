@@ -24,126 +24,130 @@ db.connect(function (err) {
 });
 
 //! Need to write question form to ask user
-async function startQuestion() {
-  const answer = await inquirer.prompt([
-    {
-      type: 'list',
-      name: 'introduction',
-      message: 'Please select',
-      choices: [
-        'View All Active Employees',
-        'Add Employee',
-        // 'Remove Employee' *Feature to be added in future*
-        'Update Employee',
-        'View All Roles',
-        'Add Role',
-        'View All Departments',
-        'Add Department',
-        'Quit',
-      ],
-    },
-  ]);
+function startQuestion() {
+  inquirer
+    .prompt([
+      {
+        type: 'list',
+        name: 'introduction',
+        message: 'Please select',
+        choices: [
+          'View All Active Employees',
+          'Add Employee',
+          // 'Remove Employee' *Feature to be added in future*
+          'Update Employee',
+          'View All Roles',
+          'Add Role',
+          'View All Departments',
+          'Add Department',
+          'Quit',
+        ],
+      },
+    ])
+    .then((answer) => {
+      //Generate switch case to evaluate user's answer. Need to create functions that I am leading users to.
+      switch (answer.introduction) {
+        //View all employee condition
+        case 'View All Active Employees':
+          viewEmployees();
+          break;
+        //Add employee condition
+        case 'View All Active Employees':
+          addEmployee();
+          break;
+        // //Remove employee condition
+        // case 'Remove Employee':
+        //     removeEmployee();
+        //     break;
 
-  //Generate switch case to evaluate user's answer. Need to create functions that I am leading users to.
-  switch (answer.introduction) {
-    //View all employee condition
-    case 'View All Active Employees':
-      viewEmployees();
-      break;
-    //Add employee condition
-    case 'View All Active Employees':
-      addEmployee();
-      break;
-    // //Remove employee condition
-    // case 'Remove Employee':
-    //     removeEmployee();
-    //     break;
-
-    // Update Employee
-    case 'Update Employee':
-      updateEmployee();
-      break;
-    // View Roles
-    case 'View All Roles':
-      viewRoles();
-      break;
-    // Add Role
-    case 'Add Role':
-      addRole();
-      break;
-    // View Departments
-    case 'View All Departments':
-      viewDepartments();
-      break;
-    // Add Department
-    case 'Add Department':
-      addDepartment();
-      break;
-    // Quit option
-    case 'Quit':
-      console.log('Until next time!');
-      db.end();
-      break;
-  }
+        // Update Employee
+        case 'Update Employee':
+          updateEmployee();
+          break;
+        // View Roles
+        case 'View All Roles':
+          viewRoles();
+          break;
+        // Add Role
+        case 'Add Role':
+          addRole();
+          break;
+        // View Departments
+        case 'View All Departments':
+          viewDepartments();
+          break;
+        // Add Department
+        case 'Add Department':
+          addDepartment();
+          break;
+        // Quit option
+        case 'Quit':
+          console.log('Until next time!');
+          db.end();
+          break;
+      }
+    });
 }
 
 // Add Options
 function addEmployee() {
-    const sqlRole = `SELECT * FROM role`;
-    db.query(sqlRole, (err,res)=>{
-        roleList = res.map(role=>({
-            name: role.title,
-            value: role.id
-        }));
+  const sqlRole = `SELECT * FROM role`;
+  db.query(sqlRole, (err, res) => {
+    roleList = res.map((role) => ({
+      name: role.title,
+      value: role.id,
+    }));
     const sqlEmp = `SELECT * FROM employee`;
-    db.query(sqlEmp, (err,res)=>{
-        employeeList = res.map(employee=>({
-            name: employee.first_name.concat(' ', employees.last_name),
-            value: employee.id
-        }));
-    const sqlManager = `SELECT * FROM employee WHERE manager_id = null`;
-    db.query(sqlManager, (err, res) => {
+    db.query(sqlEmp, (err, res) => {
+      employeeList = res.map((employee) => ({
+        name: employee.first_name.concat(' ', employees.last_name),
+        value: employee.id,
+      }));
+      const sqlManager = `SELECT * FROM employee WHERE manager_id = null`;
+      db.query(sqlManager, (err, res) => {
         managerList = res.map((employees) => ({
-            name: employees.first_name.concat(' ', employees.last_name),
-            value: addRole.id,
-          }));
-        });
-        return inquirer.prompt([
-            {
-                type:'input',
-                name:'first_name',
-                message:'What is the first name of your employee?'
-            },
-            {
-                type:'input',
-                name:'last_name',
-                message: 'What is the last name of your employee?'
-            },
-            {
-                type:'input',
-                name:'role',
-                message: 'What was your employee hired on as?',
-                choices: employeeList
-            },
-            {
-                type:'input',
-                name:'manager',
-                message: 'Which manager does the employee report to?',
-                choices: managerList
+          name: employees.first_name.concat(' ', employees.last_name),
+          value: addRole.id,
+        }));
+      });
+      return inquirer
+        .prompt([
+          {
+            type: 'input',
+            name: 'first_name',
+            message: 'What is the first name of your employee?',
+          },
+          {
+            type: 'input',
+            name: 'last_name',
+            message: 'What is the last name of your employee?',
+          },
+          {
+            type: 'input',
+            name: 'role',
+            message: 'What was your employee hired on as?',
+            choices: employeeList,
+          },
+          {
+            type: 'input',
+            name: 'manager',
+            message: 'Which manager does the employee report to?',
+            choices: managerList,
+          },
+        ])
+        .then((answers) => {
+          const sqlCreate = `INSERT INTO employee SET first_name='${answers.first_name}', last_name='${answers.last_name}', role_id=${answers.role}, manager_id = ${answers.manager};`;
+          db.query(sqlCreate, (err, res) => {
+            if (err) {
+              console.log(err);
+              return;
             }
-        ]).then((answers)=>{
-            const sqlCreate = `INSERT INTO employee SET first_name='${answers.first_name}', last_name='${answers.last_name}', role_id=${answers.role}, manager_id = ${answers.manager};`
-            db.query(sqlCreate, (err,res)=>{
-                if (err){
-                    console.log(err);
-                    return;
-                }
-                console.log(`Added ${answers.first_name} to the database!`)
-                startQuestion();
-            });
-        });
+            console.log(`Added ${answers.first_name} to the database!`);
+            startQuestion();
+          });
         });
     });
+  });
 }
 
 function addRole() {
@@ -263,9 +267,13 @@ function updateEmployee() {
 
 //View Options
 function viewEmployees() {
-  const sqlEmp = `SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, department.name AS department, role.salary, CONCAT(manager.first_name,' ', manager.last_name) AS manager FROM employee LEFT JOIN employee manager on manager.id = employee.manager_id INNER JOIN role ON (role.id  =  employee.role_id) INNER JOIN department ON (department.id = role.department_id) ORDER BY employee_id;`;
+  const sqlEmp = `SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN employee manager on manager.id = employee.manager_id INNER JOIN role ON (role.id = employee.role_id) INNER JOIN department ON (department.id = role.department_id) ORDER BY employee.id;`;
   //Pass variable above into query
   db.query(sqlEmp, (err, res) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
     console.table(res);
     startQuestion();
   });
