@@ -52,7 +52,7 @@ function startQuestion() {
           viewEmployees();
           break;
         //Add employee condition
-        case 'View All Active Employees':
+        case 'Add Employee':
           addEmployee();
           break;
         // //Remove employee condition
@@ -103,13 +103,13 @@ function addEmployee() {
         name: employee.first_name.concat(' ', employees.last_name),
         value: employee.id,
       }));
-      const sqlManager = `SELECT * FROM employee WHERE manager_id = null`;
-      db.query(sqlManager, (err, res) => {
-        managerList = res.map((employees) => ({
-          name: employees.first_name.concat(' ', employees.last_name),
-          value: addRole.id,
-        }));
-      });
+    //   const sqlManager = `SELECT * FROM employee WHERE manager_id = null`;
+    //   db.query(sqlManager, (err, res) => {
+    //     managerList = res.map((employees) => ({
+    //       name: employees.first_name.concat(' ', employees.last_name),
+    //       value: addRole.id,
+    //     }));
+    //   });
       return inquirer
         .prompt([
           {
@@ -132,7 +132,7 @@ function addEmployee() {
             type: 'input',
             name: 'manager',
             message: 'Which manager does the employee report to?',
-            choices: managerList,
+            choices: employeeList,
           },
         ])
         .then((answers) => {
@@ -172,7 +172,7 @@ function addRole() {
         },
         {
           type: 'list',
-          name: department,
+          name: 'department',
           message: 'Which department does this role belong to?',
           choices: departmentList,
         },
