@@ -88,7 +88,63 @@ async function startQuestion() {
 }
 
 // Add Options
-function addEmployee() {}
+function addEmployee() {
+    const sqlRole = `SELECT * FROM role`;
+    db.query(sqlRole, (err,res)=>{
+        roleList = res.map(role=>({
+            name: role.title,
+            value: role.id
+        }));
+    const sqlEmp = `SELECT * FROM employee`;
+    db.query(sqlEmp, (err,res)=>{
+        employeeList = res.map(employee=>({
+            name: employee.first_name.concat(' ', employees.last_name),
+            value: employee.id
+        }));
+    const sqlManager = `SELECT * FROM employee WHERE manager_id = null`;
+    db.query(sqlManager, (err, res) => {
+        managerList = res.map((employees) => ({
+            name: employees.first_name.concat(' ', employees.last_name),
+            value: addRole.id,
+          }));
+        });
+        return inquirer.prompt([
+            {
+                type:'input',
+                name:'first_name',
+                message:'What is the first name of your employee?'
+            },
+            {
+                type:'input',
+                name:'last_name',
+                message: 'What is the last name of your employee?'
+            },
+            {
+                type:'input',
+                name:'role',
+                message: 'What was your employee hired on as?',
+                choices: employeeList
+            },
+            {
+                type:'input',
+                name:'manager',
+                message: 'Which manager does the employee report to?',
+                choices: managerList
+            }
+        ]).then((answers)=>{
+            const sqlCreate = `INSERT INTO employee SET first_name='${answers.first_name}', last_name='${answers.last_name}', role_id=${answers.role}, manager_id = ${answers.manager};`
+            db.query(sqlCreate, (err,res)=>{
+                if (err){
+                    console.log(err);
+                    return;
+                }
+                console.log(`Added ${answers.first_name} to the database!`)
+                startQuestion();
+            });
+        });
+        });
+    });
+}
 
 function addRole() {
   const sqlDept = `SELECT * FROM department`;
@@ -117,10 +173,10 @@ function addRole() {
           choices: departmentList,
         },
       ])
-      .then((answer) => {
-        const sqlRole = `INSERT INTO role SET title = ${answer.newRole}, department_id=${answer.department}, salary = ${answer.salary};`;
+      .then((answers) => {
+        const sqlRole = `INSERT INTO role SET title = ${answers.newRole}, department_id=${answers.department}, salary = ${answers.salary};`;
         db.query(sqlRole, (err, res) => {
-          console.log(`Added ${answer.newRole} to the database`);
+          console.log(`Added ${answers.newRole} to the database`);
           startQuestion();
         });
       });
@@ -136,11 +192,11 @@ function addDepartment() {
         message: 'What is the name of your department?',
       },
     ])
-    .then((answer) => {
-      const sqlDept = `INSERT INTO department(name) VALUES('${answer.department}');`;
+    .then((answers) => {
+      const sqlDept = `INSERT INTO department(name) VALUES('${answers.department}');`;
       db.query(sqlDept, (err, res) => {
         console.log(
-          `Successfuly added ${answer.department} to our list of departments!`
+          `Successfuly added ${answers.department} to our list of departments!`
         );
         startQuestion();
       });
@@ -149,7 +205,7 @@ function addDepartment() {
 
 // Update Option
 function updateEmployee() {
-  //create maps the array for all employees, roles, and managers so we can display them later in the function
+  //map method used to get array for all employees, roles, and managers so we can display them later in the function
   const sqlEmp = `SELECT * FROM employee`;
   db.query(sqlEmp, (err, res) => {
     employeeList = res.map((employees) => ({
@@ -192,10 +248,11 @@ function updateEmployee() {
             choices: managerList,
           },
         ])
-        .then((answer) => {
+        .then((answers) => {
           //this is where we update our employee information that we got from inquirer above and store on the database.
-          const employeeUpdated = `UPDATE employee SET manager_id=${answer.manager}, role_id=${answer.role} WHERE id = ${answer.employee};`;
+          const employeeUpdated = `UPDATE employee SET manager_id=${answers.manager}, role_id=${answers.role} WHERE id = ${answers.employee};`;
           db.query(employeeUpdated, (err, res) => {
+            if (err) throw err;
             console.log('Employee changes are complete!');
             startQuestion();
           });
