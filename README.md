@@ -25,7 +25,7 @@
   This project is using the MIT license. To learn more, please click the license link listed above.
 
   ## Contribution <a name='contribution'></a>
-  I had to get lessons to learn how to reference a list from within a list.  I referenced out lessons in class for overall SQL syntax. 
+  I had to get lessons to learn how to reference from within a list.  I referenced out lessons in class for overall SQL syntax. 
 
   ## Tests <a name='tests'></a>
   No formal tests conducted. 
