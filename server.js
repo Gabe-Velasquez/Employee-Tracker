@@ -97,19 +97,13 @@ function addEmployee() {
       name: role.title,
       value: role.id,
     }));
-    const sqlEmp = `SELECT * FROM employee`;
+    const sqlEmp = `SELECT * FROM employee WHERE manager_id IS NULL`;
     db.query(sqlEmp, (err, res) => {
-      employeeList = res.map((employee) => ({
-        name: employee.first_name.concat(' ', employees.last_name),
+      managerList = res.map((employee) => ({
+        name: employee.first_name.concat(' ', employee.last_name),
         value: employee.id,
       }));
-    //   const sqlManager = `SELECT * FROM employee WHERE manager_id = null`;
-    //   db.query(sqlManager, (err, res) => {
-    //     managerList = res.map((employees) => ({
-    //       name: employees.first_name.concat(' ', employees.last_name),
-    //       value: addRole.id,
-    //     }));
-    //   });
+
       return inquirer
         .prompt([
           {
@@ -123,16 +117,16 @@ function addEmployee() {
             message: 'What is the last name of your employee?',
           },
           {
-            type: 'input',
+            type: 'list',
             name: 'role',
             message: 'What was your employee hired on as?',
-            choices: employeeList,
+            choices: roleList,
           },
           {
-            type: 'input',
+            type: 'list',
             name: 'manager',
             message: 'Which manager does the employee report to?',
-            choices: employeeList,
+            choices: managerList,
           },
         ])
         .then((answers) => {
@@ -142,7 +136,7 @@ function addEmployee() {
               console.log(err);
               return;
             }
-            console.log(`Added ${answers.first_name} to the database!`);
+            console.log(`Added ${answers.first_name} to our database!`);
             startQuestion();
           });
         });
@@ -212,9 +206,9 @@ function updateEmployee() {
   //map method used to get array for all employees, roles, and managers so we can display them later in the function
   const sqlEmp = `SELECT * FROM employee`;
   db.query(sqlEmp, (err, res) => {
-    employeeList = res.map((employees) => ({
-      name: employees.first_name.concat(' ', employees.last_name),
-      value: addRole.id,
+    employeeList = res.map((employee) => ({
+      name: employee.first_name.concat(' ', employee.last_name),
+      value: employee.id,
     }));
     //
     const sqlRole = `SELECT * FROM role`;
@@ -223,44 +217,51 @@ function updateEmployee() {
         name: role.title,
         value: role.id,
       }));
-      const sqlManager = `SELECT * FROM employee WHERE manager_id = null`;
-      db.query(sqlManager, (err, res) => {
-        managerList = res.map((employees) => ({
-          name: employees.first_name.concat(' ', employees.last_name),
-          value: addRole.id,
+      const sqlEmp = `SELECT * FROM employee WHERE manager_id IS NULL`;
+      db.query(sqlEmp, (err, res) => {
+        managerList = res.map((employee) => ({
+          name: employee.first_name.concat(' ', employee.last_name),
+          value: employee.id,
         }));
-      });
-      //returns the question prompt to user so we can see who they need to edit, where and which manager they will report to now.
-      return inquirer
-        .prompt([
-          {
-            type: 'list',
-            name: 'employee',
-            message: 'Which employee would you like to make edits to?',
-            choices: employeeList,
-          },
-          {
-            type: 'list',
-            name: 'role',
-            message: 'What new role does the selected employee do now?',
-            choices: roleList,
-          },
-          {
-            type: 'list',
-            name: 'manager',
-            message: 'Who does the employee report to now?',
-            choices: managerList,
-          },
-        ])
-        .then((answers) => {
-          //this is where we update our employee information that we got from inquirer above and store on the database.
-          const employeeUpdated = `UPDATE employee SET manager_id=${answers.manager}, role_id=${answers.role} WHERE id = ${answers.employee};`;
-          db.query(employeeUpdated, (err, res) => {
-            if (err) throw err;
-            console.log('Employee changes are complete!');
-            startQuestion();
+        //   const sqlManager = `SELECT * FROM employee WHERE manager_id IS NULL`;
+        //   db.query(sqlManager, (err, res) => {
+        //     managerList = res.map((employee) => ({
+        //       name: employee.first_name.concat(' ', employee.last_name),
+        //       value: employee.id,
+        //     }));
+        //   });
+        //returns the question prompt to user so we can see who they need to edit, where and which manager they will report to now.
+        return inquirer
+          .prompt([
+            {
+              type: 'list',
+              name: 'employee',
+              message: 'Which employee would you like to make edits to?',
+              choices: employeeList,
+            },
+            {
+              type: 'list',
+              name: 'role',
+              message: 'What new role does the selected employee do now?',
+              choices: roleList,
+            },
+            {
+              type: 'list',
+              name: 'manager',
+              message: 'Who will the employee report to now?',
+              choices: managerList,
+            },
+          ])
+          .then((answers) => {
+            //this is where we update our employee information that we got from inquirer above and store on the database.
+            const employeeUpdated = `UPDATE employee SET manager_id=${answers.manager}, role_id=${answers.role} WHERE id = ${answers.employee};`;
+            db.query(employeeUpdated, (err, res) => {
+              if (err) throw err;
+              console.log('Employee changes are complete!');
+              startQuestion();
+            });
           });
-        });
+      });
     });
   });
 }
